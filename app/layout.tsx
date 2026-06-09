@@ -9,10 +9,41 @@ const notoSerifJP = Noto_Serif_JP({
   display: "swap",
 });
 
+const metadataBase = new URL(
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://gojikka.com"
+);
+
+const siteTitle = "GOJIKKA｜実家に帰りたいのに、帰れないあなたへ";
+const siteDescription =
+  "親のことを理解した状態で相談できるAI。遠くに離れて暮らす40〜60代のための、感情の通訳。";
+
 export const metadata: Metadata = {
-  title: "GOJIKKA｜実家に帰りたいのに、帰れないあなたへ",
-  description:
-    "親のことを理解した状態で相談できるAI。遠く離れて暮らすあなたのための、静かな相談相手。",
+  metadataBase,
+  title: {
+    default: siteTitle,
+    template: "%s｜GOJIKKA",
+  },
+  description: siteDescription,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    url: "https://gojikka.com",
+    siteName: "GOJIKKA",
+    title: siteTitle,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

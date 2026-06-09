@@ -4,8 +4,9 @@ import GojikkaHeader from "@/app/components/GojikkaHeader";
 import ParentProfileForm from "@/app/components/ParentProfileForm";
 
 export const metadata: Metadata = {
-  title: "親プロフィール｜GOJIKKA",
+  title: "親プロフィール",
   description: "親のことを教えてください。理解したうえで相談を始めます。",
+  robots: { index: false, follow: false },
 };
 
 export default function ProfilePage() {

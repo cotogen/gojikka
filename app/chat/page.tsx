@@ -3,8 +3,9 @@ import ChatScreen from "@/app/components/ChatScreen";
 import GojikkaHeader from "@/app/components/GojikkaHeader";
 
 export const metadata: Metadata = {
-  title: "相談｜GOJIKKA",
+  title: "相談",
   description: "親のことを理解した状態で、そっと話を聞きます。",
+  robots: { index: false, follow: false },
 };
 
 export default function ChatPage() {
