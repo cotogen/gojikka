@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #2c2419;
+  --muted: #8a7b6b;
+  --accent: #6b5344;
+  --accent-hover: #4a3829;
+  --border: #e8e0d6;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.gojikka-page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.gojikka-container {
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.gojikka-header {
+  padding-top: 2.5rem;
+}
+
+.gojikka-header--compact {
+  padding-top: 2.5rem;
+}
+
+@media (min-width: 640px) {
+  .gojikka-header {
+    padding-top: 6rem;
+  }
+
+  .gojikka-header--compact {
+    padding-top: 3rem;
+  }
+}
+
+.gojikka-logo {
+  display: block;
+  width: auto;
+  height: 4rem;
+}
+
+.gojikka-logo--hero {
+  height: 11rem;
+}
+
+@media (min-width: 640px) {
+  .gojikka-logo {
+    height: 5rem;
+  }
+
+  .gojikka-logo--hero {
+    height: 12rem;
+  }
+}
+
+.gojikka-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.gojikka-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.gojikka-label {
+  margin-bottom: 0.75rem;
+  font-size: 0.9375rem;
+  letter-spacing: 0.025em;
+}
+
+.gojikka-input,
+.gojikka-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.625;
+  color: var(--foreground);
+  font-family: inherit;
+}
+
+.gojikka-textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.gojikka-input:focus,
+.gojikka-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.gojikka-input::placeholder,
+.gojikka-textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.gojikka-btn {
+  display: inline-block;
+  border: none;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: var(--background);
+  padding: 0.875rem 2.5rem;
+  font-size: 0.9375rem;
+  letter-spacing: 0.025em;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.gojikka-btn:hover {
+  background: var(--accent-hover);
+}
+
+.gojikka-muted {
+  color: var(--muted);
+}
+
+.gojikka-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.gojikka-choice {
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: var(--background);
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  letter-spacing: 0.025em;
+  font-family: inherit;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.gojikka-choice--selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--background);
+}
+
+.gojikka-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.gojikka-page--chat {
+  min-height: 100vh;
+}
+
+.gojikka-chat-main {
+  padding-top: 1rem;
+  padding-bottom: 0;
+}
+
+.gojikka-chat {
+  width: 100%;
+}
+
+.gojikka-chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 14rem;
+}
+
+.gojikka-chat-compose {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  border-top: 1px solid var(--border);
+  background: var(--background);
+}
+
+.gojikka-chat-compose-inner {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 1.5rem;
+  box-sizing: border-box;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
