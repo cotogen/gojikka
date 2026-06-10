@@ -80,6 +80,22 @@ body {
   text-align: right;
 }
 
+.gojikka-message--deletable {
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  margin-right: -0.25rem;
+  transition: background-color 0.15s ease;
+}
+
+.gojikka-message--deletable:hover {
+  background-color: color-mix(in srgb, var(--border) 40%, transparent);
+}
+
+.gojikka-message--deletable:active {
+  background-color: color-mix(in srgb, var(--border) 70%, transparent);
+}
+
 .gojikka-message--assistant {
   margin-right: 2rem;
   text-align: left;

@@ -3,8 +3,10 @@
 import { useSession } from "next-auth/react";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import ChatUserMessage from "@/app/components/ChatUserMessage";
 import SaveConversationButton from "@/app/components/SaveConversationButton";
 import {
+  clearGuestData,
   loadConversation,
   saveConversation,
   StoredMessage,
@@ -68,6 +70,7 @@ export default function ChatScreen() {
   const [loadedFromDb, setLoadedFromDb] = useState(false);
   const [savedNotice, setSavedNotice] = useState(false);
   const [sending, setSending] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -129,10 +132,74 @@ export default function ChatScreen() {
     saveConversation(toStored(messages));
   }, [messages, ready, isLoggedIn]);
 
+  async function handleDeleteUserMessage(message: Message) {
+    const nextMessages = messages.filter((item) => item.id !== message.id);
+    setMessages(nextMessages);
+    setError(null);
+
+    if (isLoggedIn) {
+      try {
+        const response = await fetch("/api/conversations", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            createdAt: message.createdAt,
+            content: message.text,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("削除に失敗しました。");
+        }
+      } catch (err) {
+        setMessages(messages);
+        setError(
+          err instanceof Error ? err.message : "メッセージの削除に失敗しました。"
+        );
+      }
+      return;
+    }
+
+    saveConversation(toStored(nextMessages));
+  }
+
+  async function handleResetConversation() {
+    if (
+      !window.confirm(
+        "会話をすべてリセットします。プロフィール入力からやり直します。よろしいですか？"
+      )
+    ) {
+      return;
+    }
+
+    setResetting(true);
+    setError(null);
+
+    try {
+      if (isLoggedIn) {
+        const response = await fetch("/api/conversations?reset=true", {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("リセットに失敗しました。");
+        }
+      }
+
+      clearGuestData();
+      router.push("/profile");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "会話のリセットに失敗しました。"
+      );
+      setResetting(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const text = input.trim();
-    if (!text || !profile || sending) return;
+    if (!text || !profile || sending || resetting) return;
 
     const createdAt = new Date().toISOString();
     const userMessage: Message = {
@@ -204,6 +271,7 @@ export default function ChatScreen() {
   }
 
   const showWelcomeBack = isLoggedIn && loadedFromDb && !savedNotice;
+  const actionDisabled = sending || resetting;
 
   if (!ready || !profile) {
     return (
@@ -230,25 +298,31 @@ export default function ChatScreen() {
       )}
 
       <div className="gojikka-chat-messages">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={
-              message.role === "user"
-                ? "gojikka-message gojikka-message--user"
-                : "gojikka-message gojikka-message--assistant"
-            }
-          >
-            <p className="whitespace-pre-wrap text-[0.9375rem] leading-[2] gojikka-muted">
-              {message.text}
-            </p>
-            {message.createdAt && (
-              <p className="gojikka-message-time">
-                {formatMessageTime(message.createdAt)}
+        {messages.map((message) =>
+          message.role === "user" ? (
+            <ChatUserMessage
+              key={message.id}
+              text={message.text}
+              createdAt={message.createdAt}
+              disabled={actionDisabled}
+              onDelete={() => handleDeleteUserMessage(message)}
+            />
+          ) : (
+            <div
+              key={message.id}
+              className="gojikka-message gojikka-message--assistant"
+            >
+              <p className="whitespace-pre-wrap text-[0.9375rem] leading-[2] gojikka-muted">
+                {message.text}
               </p>
-            )}
-          </div>
-        ))}
+              {message.createdAt && (
+                <p className="gojikka-message-time">
+                  {formatMessageTime(message.createdAt)}
+                </p>
+              )}
+            </div>
+          )
+        )}
 
         {sending && (
           <p className="mr-8 text-[0.9375rem] leading-[2] gojikka-muted">
@@ -269,15 +343,23 @@ export default function ChatScreen() {
             rows={3}
             placeholder="いま、話してみたいことを書いてください"
             className="gojikka-textarea mb-4"
-            disabled={sending}
+            disabled={actionDisabled}
           />
           {error && (
             <p className="mb-4 text-[0.875rem] leading-[1.8] gojikka-muted">
               {error}
             </p>
           )}
-          <SaveConversationButton disabled={sending} />
-          <button type="submit" className="gojikka-btn" disabled={sending}>
+          <button
+            type="button"
+            className="gojikka-btn-secondary mb-4"
+            onClick={handleResetConversation}
+            disabled={actionDisabled}
+          >
+            {resetting ? "リセット中…" : "会話をリセット"}
+          </button>
+          <SaveConversationButton disabled={actionDisabled} />
+          <button type="submit" className="gojikka-btn" disabled={actionDisabled}>
             {sending ? "送信中…" : "送信"}
           </button>
         </div>

@@ -118,3 +118,52 @@ export async function getConversationsByUserId(
     createdAt: row.created_at,
   }));
 }
+
+export async function deleteUserMessageByUserId(
+  userId: string,
+  createdAt: string,
+  content: string
+): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return false;
+  }
+
+  const { error } = await supabase
+    .from("conversations")
+    .delete()
+    .eq("user_id", userId)
+    .eq("role", "user")
+    .eq("created_at", createdAt)
+    .eq("content", content);
+
+  if (error) {
+    console.error("[GOJIKKA] conversation delete error:", error.message);
+    return false;
+  }
+
+  return true;
+}
+
+export async function deleteAllConversationsByUserId(
+  userId: string
+): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return false;
+  }
+
+  const { error } = await supabase
+    .from("conversations")
+    .delete()
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("[GOJIKKA] conversations delete all error:", error.message);
+    return false;
+  }
+
+  return true;
+}

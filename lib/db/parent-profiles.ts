@@ -68,3 +68,25 @@ export async function getParentProfileByUserId(
     avoidTopics: data.avoid_topics ?? "",
   };
 }
+
+export async function deleteParentProfileByUserId(
+  userId: string
+): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return false;
+  }
+
+  const { error } = await supabase
+    .from("parent_profiles")
+    .delete()
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("[GOJIKKA] parent_profiles delete error:", error.message);
+    return false;
+  }
+
+  return true;
+}
