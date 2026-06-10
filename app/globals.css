@@ -144,6 +144,12 @@ body {
   letter-spacing: 0.025em;
 }
 
+.gojikka-required {
+  margin-left: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
 .gojikka-input,
 .gojikka-textarea {
   width: 100%;
@@ -190,6 +196,15 @@ body {
 
 .gojikka-btn:hover {
   background: var(--accent-hover);
+}
+
+.gojikka-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.gojikka-btn:disabled:hover {
+  background: var(--accent);
 }
 
 .gojikka-btn-secondary {

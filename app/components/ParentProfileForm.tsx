@@ -76,6 +76,11 @@ export default function ParentProfileForm({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consultTargetError, setConsultTargetError] = useState<string | null>(
+    null
+  );
+
+  const hasConsultTarget = Boolean(consultTarget || profile.consultTarget);
 
   useEffect(() => {
     if (initialProfile) {
@@ -90,6 +95,7 @@ export default function ParentProfileForm({
 
   function handleConsultSelect(option: (typeof CONSULT_OPTIONS)[number]) {
     setConsultTarget(option);
+    setConsultTargetError(null);
     setProfile((prev) => ({
       ...prev,
       consultTarget: option,
@@ -100,13 +106,20 @@ export default function ParentProfileForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    const selectedTarget = consultTarget || profile.consultTarget;
+    if (!selectedTarget) {
+      setConsultTargetError("選択してください。");
+      return;
+    }
+
     const nextProfile: ParentProfile = {
       ...profile,
-      consultTarget: consultTarget || profile.consultTarget,
+      consultTarget: selectedTarget,
     };
 
     setSaving(true);
     setError(null);
+    setConsultTargetError(null);
 
     if (mode === "edit" && isLoggedIn) {
       try {
@@ -136,7 +149,10 @@ export default function ParentProfileForm({
   return (
     <form onSubmit={handleSubmit} className="gojikka-form">
       <div className="gojikka-field">
-        <p className="gojikka-label">誰のことを相談しますか？</p>
+        <p className="gojikka-label">
+          誰のことを相談しますか？
+          <span className="gojikka-required">（必須）</span>
+        </p>
         <div className="gojikka-choices" role="group" aria-label="誰のことを相談しますか？">
           {CONSULT_OPTIONS.map((option) => (
             <button
@@ -152,6 +168,11 @@ export default function ParentProfileForm({
             </button>
           ))}
         </div>
+        {consultTargetError && (
+          <p className="mt-3 text-[0.875rem] leading-[1.8] gojikka-muted">
+            {consultTargetError}
+          </p>
+        )}
       </div>
 
       <div className="gojikka-field">
@@ -202,7 +223,11 @@ export default function ParentProfileForm({
         <p className="text-[0.875rem] leading-[1.8] gojikka-muted">{error}</p>
       )}
 
-      <button type="submit" className="gojikka-btn" disabled={saving}>
+      <button
+        type="submit"
+        className="gojikka-btn"
+        disabled={saving || !hasConsultTarget}
+      >
         {saving
           ? "保存中…"
           : mode === "edit"
