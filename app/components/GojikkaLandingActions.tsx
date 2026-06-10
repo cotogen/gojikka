@@ -22,16 +22,16 @@ export default function GojikkaLandingActions() {
 
   return (
     <div className="gojikka-landing-actions">
+      <Link href="/profile" className="gojikka-btn">
+        無料で始める
+      </Link>
       <button
         type="button"
-        className="gojikka-btn"
+        className="gojikka-btn-secondary"
         onClick={() => signIn("line", { callbackUrl: "/chat" })}
       >
         ログインして続きを話す
       </button>
-      <Link href="/profile" className="gojikka-btn-secondary">
-        無料で始める
-      </Link>
     </div>
   );
 }

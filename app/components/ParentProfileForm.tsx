@@ -40,7 +40,7 @@ const fields: {
   },
   {
     key: "avoidTopics",
-    label: "苦手な話題や地雷",
+    label: "話しづらい話題",
     placeholder: "例：健康の話、孫の進路、実家の売却",
     multiline: true,
   },
@@ -232,7 +232,7 @@ export default function ParentProfileForm({
           ? "保存中…"
           : mode === "edit"
             ? "変更を保存する"
-            : "相談を始める"}
+            : "話してみる"}
       </button>
     </form>
   );

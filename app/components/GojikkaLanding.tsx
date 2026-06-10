@@ -21,6 +21,8 @@ export default function GojikkaLanding() {
             相談できるAI。
           </p>
 
+          <p>話しているうちに、親への気持ちが整理されることがあります。</p>
+
           <p>
             遠くに離れて暮らす。電話は重い。
             <br />

@@ -38,17 +38,13 @@ export default async function ProfilePage() {
 
       <main className="gojikka-container pb-32 pt-12 sm:pt-16">
         <h1 className="text-balance text-[1.5rem] leading-[1.7] tracking-wide sm:text-[1.75rem]">
-          親のことを
+          あなたから見た親を
           <br />
           教えてください
         </h1>
 
         <p className="mt-8 text-[0.9375rem] leading-[2] gojikka-muted">
           わかる範囲で大丈夫です。あとから変えても構いません。
-        </p>
-
-        <p className="mt-4 text-[0.875rem] leading-[1.8] gojikka-muted">
-          以前お話しした方は、トップページの「ログインして続きを話す」からどうぞ。
         </p>
 
         <div className="mt-14">
