@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveUserId } from "@/lib/auth/resolve-user-id";
+import { truncateToRecentMessages } from "@/lib/chat-context";
 import { buildSystemPrompt } from "@/lib/chat-prompt";
 import { getConversationsByUserId } from "@/lib/db/conversations";
 import { getParentProfileByUserId } from "@/lib/db/parent-profiles";
@@ -88,6 +89,9 @@ export async function POST(request: Request) {
   } else {
     messages = toChatMessages(messages);
   }
+
+  const maxMessages = parseInt(process.env.CHAT_CONTEXT_MAX_MESSAGES ?? "24", 10);
+  messages = truncateToRecentMessages(messages, maxMessages) as ChatMessage[];
 
   if (messages.length === 0) {
     return NextResponse.json(
