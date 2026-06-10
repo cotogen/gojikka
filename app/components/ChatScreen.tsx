@@ -348,6 +348,7 @@ export default function ChatScreen() {
             placeholder="最近、親のことで気になっていることはありますか？"
             className="gojikka-textarea mb-4"
             disabled={actionDisabled}
+            maxLength={300}
           />
           {error && (
             <p className="mb-4 text-[0.875rem] leading-[1.8] gojikka-muted">

@@ -100,6 +100,14 @@ export async function POST(request: Request) {
     );
   }
 
+  const userMessages = messages.filter((message) => message.role === "user");
+  if (userMessages.some((message) => message.content.length > 300)) {
+    return NextResponse.json(
+      { error: "メッセージは300字以内で入力してください。" },
+      { status: 400 }
+    );
+  }
+
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
