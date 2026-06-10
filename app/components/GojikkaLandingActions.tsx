@@ -2,6 +2,7 @@
 
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
+import { clearGuestData } from "@/lib/conversation-storage";
 
 export default function GojikkaLandingActions() {
   const { data: session, status } = useSession();
@@ -22,7 +23,11 @@ export default function GojikkaLandingActions() {
 
   return (
     <div className="gojikka-landing-actions">
-      <Link href="/profile" className="gojikka-btn">
+      <Link
+        href="/profile"
+        className="gojikka-btn"
+        onClick={() => clearGuestData()}
+      >
         無料で始める
       </Link>
       <button

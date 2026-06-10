@@ -6,6 +6,7 @@ import {
   ParentProfile,
   saveParentProfile,
 } from "@/lib/parent-profile";
+import { clearConversation } from "@/lib/conversation-storage";
 
 const CONSULT_OPTIONS = ["お父さん", "お母さん", "両親", "その他"] as const;
 
@@ -140,6 +141,7 @@ export default function ParentProfileForm({
         return;
       }
     } else {
+      clearConversation();
       saveParentProfile(nextProfile);
     }
 
