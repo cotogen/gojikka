@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function ChatPage() {
   return (
     <div className="gojikka-page gojikka-page--chat">
-      <GojikkaHeader compact />
+      <GojikkaHeader compact showLogout />
 
       <main className="gojikka-container gojikka-chat-main">
         <Suspense

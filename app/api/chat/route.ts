@@ -109,7 +109,7 @@ export async function POST(request: Request) {
         max_tokens: 1024,
         thinking: { type: "adaptive" },
         output_config: { effort: "low" },
-        system: buildSystemPrompt(profile),
+        system: buildSystemPrompt(profile, { isLoggedIn: Boolean(userId) }),
         messages,
       }),
     });

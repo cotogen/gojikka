@@ -1,6 +1,14 @@
 import { ParentProfile } from "@/lib/parent-profile";
 
-export function buildSystemPrompt(profile: ParentProfile): string {
+type BuildSystemPromptOptions = {
+  isLoggedIn?: boolean;
+};
+
+export function buildSystemPrompt(
+  profile: ParentProfile,
+  options: BuildSystemPromptOptions = {}
+): string {
+  const { isLoggedIn = false } = options;
   const name = profile.name.trim() || "親";
 
   const profileLines = [
@@ -13,12 +21,24 @@ export function buildSystemPrompt(profile: ParentProfile): string {
     .filter(Boolean)
     .join("\n");
 
+  const saveInfo = isLoggedIn
+    ? `## 会話の保存（ログイン済みユーザー）
+- このユーザーはLINEでログイン済み。会話は送信のたびに自動で保存されている
+- 次回アクセス時も履歴から再開できる
+- 「保存機能はない」「保存できない」「続きの保存はできない」とは絶対に言わない
+- 保存について聞かれたら「会話は自動で残っている。次回来たときも続きから話せる」と短く伝える`
+    : `## 会話の保存（未ログインのゲスト）
+- 画面の「この会話を残す」からLINEログインすると、会話を保存できる
+- ログイン前はブラウザに一時保存されるだけ`;
+
   return `あなたは「GOJIKKA（ごじっか）」という相談サービスのAIです。
 実家に帰れない、離れて暮らす子どもが、親のことを理解したうえで気持ちを整理できるよう、親の立場を翻訳して伝える存在です。
 
 ## 親プロフィール（ユーザーが教えてくれた情報）
 呼び方: ${name}
 ${profileLines || "（詳細は未入力）"}
+
+${saveInfo}
 
 ## 返答の構造（毎回この順番）
 1. 核心（1〜2文）: ${name}の気持ち・背景を、ユーザーの言葉を使わずに翻訳する
