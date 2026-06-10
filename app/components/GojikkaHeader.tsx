@@ -1,14 +1,14 @@
 import Link from "next/link";
-import LogoutButton from "@/app/components/LogoutButton";
+import ChatHeaderActions from "@/app/components/ChatHeaderActions";
 
 type GojikkaHeaderProps = {
   compact?: boolean;
-  showLogout?: boolean;
+  showChatActions?: boolean;
 };
 
 export default function GojikkaHeader({
   compact = false,
-  showLogout = false,
+  showChatActions = false,
 }: GojikkaHeaderProps) {
   return (
     <header
@@ -25,7 +25,7 @@ export default function GojikkaHeader({
             className={`gojikka-logo ${compact ? "" : "gojikka-logo--hero"}`}
           />
         </Link>
-        {showLogout && <LogoutButton />}
+        {showChatActions && <ChatHeaderActions />}
       </div>
     </header>
   );

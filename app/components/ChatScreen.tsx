@@ -9,6 +9,7 @@ import {
   saveConversation,
   StoredMessage,
 } from "@/lib/conversation-storage";
+import { formatMessageTime } from "@/lib/format-datetime";
 import {
   loadParentProfile,
   ParentProfile,
@@ -234,13 +235,18 @@ export default function ChatScreen() {
             key={message.id}
             className={
               message.role === "user"
-                ? "ml-8 text-right"
-                : "mr-8 text-left"
+                ? "gojikka-message gojikka-message--user"
+                : "gojikka-message gojikka-message--assistant"
             }
           >
             <p className="whitespace-pre-wrap text-[0.9375rem] leading-[2] gojikka-muted">
               {message.text}
             </p>
+            {message.createdAt && (
+              <p className="gojikka-message-time">
+                {formatMessageTime(message.createdAt)}
+              </p>
+            )}
           </div>
         ))}
 

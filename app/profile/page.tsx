@@ -47,6 +47,10 @@ export default async function ProfilePage() {
           わかる範囲で大丈夫です。あとから変えても構いません。
         </p>
 
+        <p className="mt-4 text-[0.875rem] leading-[1.8] gojikka-muted">
+          以前お話しした方は、トップページの「ログインして続きを話す」からどうぞ。
+        </p>
+
         <div className="mt-14">
           <ParentProfileForm />
         </div>

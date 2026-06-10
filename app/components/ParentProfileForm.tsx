@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ParentProfile,
@@ -56,10 +56,33 @@ const emptyProfile: ParentProfile = {
   avoidTopics: "",
 };
 
-export default function ParentProfileForm() {
+type ParentProfileFormProps = {
+  mode?: "create" | "edit";
+  initialProfile?: ParentProfile;
+  isLoggedIn?: boolean;
+};
+
+export default function ParentProfileForm({
+  mode = "create",
+  initialProfile,
+  isLoggedIn = false,
+}: ParentProfileFormProps) {
   const router = useRouter();
-  const [profile, setProfile] = useState<ParentProfile>(emptyProfile);
-  const [consultTarget, setConsultTarget] = useState<string>("");
+  const [profile, setProfile] = useState<ParentProfile>(
+    initialProfile ?? emptyProfile
+  );
+  const [consultTarget, setConsultTarget] = useState(
+    initialProfile?.consultTarget ?? ""
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialProfile) {
+      setProfile(initialProfile);
+      setConsultTarget(initialProfile.consultTarget);
+    }
+  }, [initialProfile]);
 
   function handleChange(key: keyof ParentProfile, value: string) {
     setProfile((prev) => ({ ...prev, [key]: value }));
@@ -70,16 +93,43 @@ export default function ParentProfileForm() {
     setProfile((prev) => ({
       ...prev,
       consultTarget: option,
-      name: option === "その他" ? "" : option,
+      name: option === "その他" ? prev.name : option,
     }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    saveParentProfile({
+
+    const nextProfile: ParentProfile = {
       ...profile,
       consultTarget: consultTarget || profile.consultTarget,
-    });
+    };
+
+    setSaving(true);
+    setError(null);
+
+    if (mode === "edit" && isLoggedIn) {
+      try {
+        const response = await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ profile: nextProfile }),
+        });
+
+        const data = (await response.json()) as { error?: string };
+
+        if (!response.ok) {
+          throw new Error(data.error ?? "保存に失敗しました。");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "保存に失敗しました。");
+        setSaving(false);
+        return;
+      }
+    } else {
+      saveParentProfile(nextProfile);
+    }
+
     router.push("/chat");
   }
 
@@ -148,8 +198,16 @@ export default function ParentProfileForm() {
         </div>
       ))}
 
-      <button type="submit" className="gojikka-btn">
-        相談を始める
+      {error && (
+        <p className="text-[0.875rem] leading-[1.8] gojikka-muted">{error}</p>
+      )}
+
+      <button type="submit" className="gojikka-btn" disabled={saving}>
+        {saving
+          ? "保存中…"
+          : mode === "edit"
+            ? "変更を保存する"
+            : "相談を始める"}
       </button>
     </form>
   );

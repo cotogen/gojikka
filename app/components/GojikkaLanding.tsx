@@ -1,6 +1,6 @@
-import Link from "next/link";
 import GojikkaFooter from "@/app/components/GojikkaFooter";
 import GojikkaHeader from "@/app/components/GojikkaHeader";
+import GojikkaLandingActions from "@/app/components/GojikkaLandingActions";
 
 export default function GojikkaLanding() {
   return (
@@ -36,9 +36,7 @@ export default function GojikkaLanding() {
         </div>
 
         <div className="mt-20">
-          <Link href="/profile" className="gojikka-btn">
-            無料で始める
-          </Link>
+          <GojikkaLandingActions />
         </div>
       </main>
 
