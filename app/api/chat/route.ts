@@ -100,8 +100,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const userMessages = messages.filter((message) => message.role === "user");
-  if (userMessages.some((message) => message.content.length > 300)) {
+  const lastUserMessage = [...messages].reverse().find((message) => message.role === "user");
+  if (lastUserMessage && lastUserMessage.content.length > 300) {
     return NextResponse.json(
       { error: "メッセージは300字以内で入力してください。" },
       { status: 400 }
