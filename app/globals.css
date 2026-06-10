@@ -84,8 +84,15 @@ body {
   cursor: pointer;
   border-radius: 0.5rem;
   padding: 0.25rem;
-  margin-right: -0.25rem;
   transition: background-color 0.15s ease;
+}
+
+.gojikka-message--user.gojikka-message--deletable {
+  margin-right: -0.25rem;
+}
+
+.gojikka-message--assistant.gojikka-message--deletable {
+  margin-left: -0.25rem;
 }
 
 .gojikka-message--deletable:hover {

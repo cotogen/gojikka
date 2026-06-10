@@ -3,9 +3,8 @@ import { StoredMessage } from "@/lib/conversation-storage";
 import {
   appendConversationMessages,
   deleteAllConversationsByUserId,
-  deleteUserMessageByUserId,
+  deleteMessageByUserId,
 } from "@/lib/db/conversations";
-import { deleteParentProfileByUserId } from "@/lib/db/parent-profiles";
 import { isSupabaseConfigured } from "@/lib/supabase-admin";
 import { NextResponse } from "next/server";
 
@@ -91,12 +90,9 @@ export async function DELETE(request: Request) {
   const url = new URL(request.url);
 
   if (url.searchParams.get("reset") === "true") {
-    const [conversationsDeleted, profileDeleted] = await Promise.all([
-      deleteAllConversationsByUserId(userId),
-      deleteParentProfileByUserId(userId),
-    ]);
+    const conversationsDeleted = await deleteAllConversationsByUserId(userId);
 
-    if (!conversationsDeleted || !profileDeleted) {
+    if (!conversationsDeleted) {
       return NextResponse.json(
         { error: "会話のリセットに失敗しました。" },
         { status: 500 }
@@ -106,10 +102,14 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  let body: { createdAt?: string; content?: string };
+  let body: { role?: string; createdAt?: string; content?: string };
 
   try {
-    body = (await request.json()) as { createdAt?: string; content?: string };
+    body = (await request.json()) as {
+      role?: string;
+      createdAt?: string;
+      content?: string;
+    };
   } catch {
     return NextResponse.json(
       { error: "リクエストの形式が正しくありません。" },
@@ -117,16 +117,25 @@ export async function DELETE(request: Request) {
     );
   }
 
-  const { createdAt, content } = body;
+  const { role, createdAt, content } = body;
 
-  if (!createdAt || !content) {
+  if (
+    (role !== "user" && role !== "assistant") ||
+    !createdAt ||
+    !content
+  ) {
     return NextResponse.json(
       { error: "削除するメッセージが指定されていません。" },
       { status: 400 }
     );
   }
 
-  const deleted = await deleteUserMessageByUserId(userId, createdAt, content);
+  const deleted = await deleteMessageByUserId(
+    userId,
+    role,
+    createdAt,
+    content
+  );
 
   if (!deleted) {
     return NextResponse.json(

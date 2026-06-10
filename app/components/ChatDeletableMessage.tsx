@@ -5,19 +5,21 @@ import { formatMessageTime } from "@/lib/format-datetime";
 
 const LONG_PRESS_MS = 500;
 
-type ChatUserMessageProps = {
+type ChatDeletableMessageProps = {
+  role: "user" | "assistant";
   text: string;
   createdAt: string;
   disabled?: boolean;
   onDelete: () => void;
 };
 
-export default function ChatUserMessage({
+export default function ChatDeletableMessage({
+  role,
   text,
   createdAt,
   disabled = false,
   onDelete,
-}: ChatUserMessageProps) {
+}: ChatDeletableMessageProps) {
   const longPressTriggered = useRef(false);
   const timerRef = useRef<number | null>(null);
 
@@ -38,7 +40,7 @@ export default function ChatUserMessage({
 
   return (
     <div
-      className="gojikka-message gojikka-message--user gojikka-message--deletable"
+      className={`gojikka-message gojikka-message--${role} gojikka-message--deletable`}
       role="button"
       tabIndex={disabled ? -1 : 0}
       aria-label="タップまたは長押しで削除"

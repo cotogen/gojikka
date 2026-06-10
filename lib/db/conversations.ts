@@ -119,8 +119,9 @@ export async function getConversationsByUserId(
   }));
 }
 
-export async function deleteUserMessageByUserId(
+export async function deleteMessageByUserId(
   userId: string,
+  role: "user" | "assistant",
   createdAt: string,
   content: string
 ): Promise<boolean> {
@@ -134,7 +135,7 @@ export async function deleteUserMessageByUserId(
     .from("conversations")
     .delete()
     .eq("user_id", userId)
-    .eq("role", "user")
+    .eq("role", role)
     .eq("created_at", createdAt)
     .eq("content", content);
 
@@ -144,6 +145,15 @@ export async function deleteUserMessageByUserId(
   }
 
   return true;
+}
+
+/** @deprecated use deleteMessageByUserId */
+export async function deleteUserMessageByUserId(
+  userId: string,
+  createdAt: string,
+  content: string
+): Promise<boolean> {
+  return deleteMessageByUserId(userId, "user", createdAt, content);
 }
 
 export async function deleteAllConversationsByUserId(
