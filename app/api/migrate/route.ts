@@ -1,6 +1,6 @@
 import { resolveUserId } from "@/lib/auth/resolve-user-id";
 import { StoredMessage } from "@/lib/conversation-storage";
-import { insertConversationsIfEmpty } from "@/lib/db/conversations";
+import { replaceConversationsByUserId } from "@/lib/db/conversations";
 import { upsertParentProfile } from "@/lib/db/parent-profiles";
 import { ParentProfile } from "@/lib/parent-profile";
 import { isSupabaseConfigured } from "@/lib/supabase-admin";
@@ -105,7 +105,12 @@ export async function POST(request: Request) {
     }
   }
 
-  const conversationsSaved = await insertConversationsIfEmpty(userId, messages);
+  let conversationsSaved = true;
+
+  if (messages.length > 0) {
+    conversationsSaved = await replaceConversationsByUserId(userId, messages);
+  }
+
   if (!conversationsSaved) {
     return NextResponse.json(
       { error: "会話の保存に失敗しました。" },

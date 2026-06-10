@@ -50,6 +50,22 @@ export async function countConversationsByUserId(
   return count ?? 0;
 }
 
+export async function replaceConversationsByUserId(
+  userId: string,
+  messages: StoredMessage[]
+): Promise<boolean> {
+  const deleted = await deleteAllConversationsByUserId(userId);
+  if (!deleted) {
+    return false;
+  }
+
+  if (messages.length === 0) {
+    return true;
+  }
+
+  return appendConversationMessages(userId, messages);
+}
+
 export async function insertConversationsIfEmpty(
   userId: string,
   messages: StoredMessage[]
