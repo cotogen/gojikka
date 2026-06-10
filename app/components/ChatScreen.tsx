@@ -40,6 +40,15 @@ function toStored(messages: Message[]): StoredMessage[] {
   }));
 }
 
+function getParentDisplayName(profile: ParentProfile): string {
+  return profile.name.trim() || profile.consultTarget || "親";
+}
+
+function getWelcomeMessage(profile: ParentProfile): string {
+  const name = getParentDisplayName(profile);
+  return `こんにちは。${name}のことを少し教えていただきありがとうございました。\n今日は、どんなことを話してみたいですか？`;
+}
+
 async function persistConversationPair(
   userMessage: StoredMessage,
   assistantMessage: StoredMessage
@@ -300,6 +309,14 @@ export default function ChatScreen() {
       )}
 
       <div className="gojikka-chat-messages">
+        {messages.length === 0 && (
+          <div className="gojikka-message gojikka-message--assistant">
+            <p className="whitespace-pre-wrap text-[0.9375rem] leading-[2] gojikka-muted">
+              {getWelcomeMessage(profile)}
+            </p>
+          </div>
+        )}
+
         {messages.map((message) => (
           <ChatDeletableMessage
             key={message.id}
@@ -328,7 +345,7 @@ export default function ChatScreen() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             rows={3}
-            placeholder="いま、話してみたいことを書いてください"
+            placeholder="最近、親のことで気になっていることはありますか？"
             className="gojikka-textarea mb-4"
             disabled={actionDisabled}
           />

@@ -16,12 +16,10 @@ export default function GojikkaLanding() {
 
         <div className="mt-16 space-y-10 text-[1.0625rem] leading-[2] gojikka-muted">
           <p>
-            親のことを理解した状態で
+            親のことを話しているうちに、
             <br className="sm:hidden" />
-            相談できるAI。
+            自分の気持ちが少し整理されることがあります。
           </p>
-
-          <p>話しているうちに、親への気持ちが整理されることがあります。</p>
 
           <p>
             遠くに離れて暮らす。電話は重い。
@@ -30,8 +28,7 @@ export default function GojikkaLanding() {
           </p>
 
           <p>
-            GOJIKKAは、あなたが教えてくれた「親のこと」を覚えて、
-            そっと話を聞いてくれる相談相手です。
+            GOJIKKAは、あなたが教えてくれた「親のこと」を覚えながら、そっと話を聞く相談相手です。
           </p>
 
           <p>正解を押し付けない。理解したうえで、一緒に考える。</p>
