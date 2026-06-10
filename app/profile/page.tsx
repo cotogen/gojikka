@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import GojikkaFooter from "@/app/components/GojikkaFooter";
 import GojikkaHeader from "@/app/components/GojikkaHeader";
 import ParentProfileForm from "@/app/components/ParentProfileForm";
+import { getParentProfileByUserId } from "@/lib/db/parent-profiles";
+import { getUserIdByLineId } from "@/lib/db/users";
+import { isSupabaseConfigured } from "@/lib/supabase-admin";
 
 export const metadata: Metadata = {
   title: "親プロフィール",
@@ -9,7 +14,24 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  if (isSupabaseConfigured()) {
+    const session = await auth();
+    const lineUserId = session?.user?.lineUserId;
+
+    if (lineUserId) {
+      const userId =
+        session?.user?.id ?? (await getUserIdByLineId(lineUserId));
+
+      if (userId) {
+        const profile = await getParentProfileByUserId(userId);
+        if (profile) {
+          redirect("/chat");
+        }
+      }
+    }
+  }
+
   return (
     <div className="gojikka-page">
       <GojikkaHeader compact />

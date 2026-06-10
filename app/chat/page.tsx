@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ChatScreen from "@/app/components/ChatScreen";
 import GojikkaHeader from "@/app/components/GojikkaHeader";
 
@@ -14,7 +15,15 @@ export default function ChatPage() {
       <GojikkaHeader compact />
 
       <main className="gojikka-container gojikka-chat-main">
-        <ChatScreen />
+        <Suspense
+          fallback={
+            <p className="text-[0.9375rem] leading-[2] gojikka-muted">
+              読み込み中…
+            </p>
+          }
+        >
+          <ChatScreen />
+        </Suspense>
       </main>
     </div>
   );

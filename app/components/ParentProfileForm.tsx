@@ -10,7 +10,7 @@ import {
 const CONSULT_OPTIONS = ["お父さん", "お母さん", "両親", "その他"] as const;
 
 const fields: {
-  key: Exclude<keyof ParentProfile, "name">;
+  key: Exclude<keyof ParentProfile, "name" | "consultTarget">;
   label: string;
   placeholder: string;
   multiline?: boolean;
@@ -47,6 +47,7 @@ const fields: {
 ];
 
 const emptyProfile: ParentProfile = {
+  consultTarget: "",
   name: "",
   age: "",
   personality: "",
@@ -68,13 +69,17 @@ export default function ParentProfileForm() {
     setConsultTarget(option);
     setProfile((prev) => ({
       ...prev,
+      consultTarget: option,
       name: option === "その他" ? "" : option,
     }));
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    saveParentProfile(profile);
+    saveParentProfile({
+      ...profile,
+      consultTarget: consultTarget || profile.consultTarget,
+    });
     router.push("/chat");
   }
 

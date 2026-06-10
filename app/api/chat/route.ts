@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { resolveUserId } from "@/lib/auth/resolve-user-id";
 import { buildSystemPrompt } from "@/lib/chat-prompt";
+import { getConversationsByUserId } from "@/lib/db/conversations";
+import { getParentProfileByUserId } from "@/lib/db/parent-profiles";
 import { ParentProfile } from "@/lib/parent-profile";
+import { isSupabaseConfigured } from "@/lib/supabase-admin";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -13,6 +17,21 @@ type ChatRequestBody = {
 };
 
 const MODEL = "claude-sonnet-4-6";
+
+function toChatMessages(
+  messages: Array<{ role: string; content: string }>
+): ChatMessage[] {
+  return messages
+    .filter(
+      (message) =>
+        (message.role === "user" || message.role === "assistant") &&
+        message.content.trim()
+    )
+    .map((message) => ({
+      role: message.role as "user" | "assistant",
+      content: message.content.trim(),
+    }));
+}
 
 export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -35,7 +54,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { profile, messages } = body;
+  let { profile, messages } = body;
 
   if (!profile || !Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json(
@@ -44,14 +63,33 @@ export async function POST(request: Request) {
     );
   }
 
-  const anthropicMessages = messages
-    .filter((message) => message.content.trim())
-    .map((message) => ({
-      role: message.role,
-      content: message.content.trim(),
-    }));
+  const userId = await resolveUserId();
 
-  if (anthropicMessages.length === 0) {
+  if (userId && isSupabaseConfigured()) {
+    const dbProfile = await getParentProfileByUserId(userId);
+    if (dbProfile) {
+      profile = dbProfile;
+    }
+
+    const dbMessages = toChatMessages(
+      (await getConversationsByUserId(userId)).map((message) => ({
+        role: message.role,
+        content: message.content,
+      }))
+    );
+
+    const clientMessages = toChatMessages(messages);
+
+    if (dbMessages.length >= clientMessages.length) {
+      messages = dbMessages;
+    } else {
+      messages = clientMessages;
+    }
+  } else {
+    messages = toChatMessages(messages);
+  }
+
+  if (messages.length === 0) {
     return NextResponse.json(
       { error: "送信できるメッセージがありません。" },
       { status: 400 }
@@ -72,7 +110,7 @@ export async function POST(request: Request) {
         thinking: { type: "adaptive" },
         output_config: { effort: "low" },
         system: buildSystemPrompt(profile),
-        messages: anthropicMessages,
+        messages,
       }),
     });
 

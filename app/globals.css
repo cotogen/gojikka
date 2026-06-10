@@ -133,6 +133,29 @@ body {
   background: var(--accent-hover);
 }
 
+.gojikka-btn-secondary {
+  display: inline-block;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 0.75rem 1.75rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.gojikka-btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.gojikka-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .gojikka-muted {
   color: var(--muted);
 }

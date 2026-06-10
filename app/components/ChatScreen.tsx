@@ -1,7 +1,14 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import SaveConversationButton from "@/app/components/SaveConversationButton";
+import {
+  loadConversation,
+  saveConversation,
+  StoredMessage,
+} from "@/lib/conversation-storage";
 import {
   loadParentProfile,
   ParentProfile,
@@ -11,38 +18,127 @@ type Message = {
   id: string;
   role: "assistant" | "user";
   text: string;
+  createdAt: string;
 };
+
+function toMessage(stored: StoredMessage, index: number): Message {
+  return {
+    id: `${stored.role}-${index}-${stored.createdAt}`,
+    role: stored.role,
+    text: stored.content,
+    createdAt: stored.createdAt,
+  };
+}
+
+function toStored(messages: Message[]): StoredMessage[] {
+  return messages.map((message) => ({
+    role: message.role,
+    content: message.text,
+    createdAt: message.createdAt,
+  }));
+}
+
+async function persistConversationPair(
+  userMessage: StoredMessage,
+  assistantMessage: StoredMessage
+) {
+  try {
+    await fetch("/api/conversations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [userMessage, assistantMessage],
+      }),
+    });
+  } catch {
+    // 会話表示は続行。保存失敗は次回以降の DB 同期でカバー
+  }
+}
 
 export default function ChatScreen() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session, status: sessionStatus } = useSession();
   const [profile, setProfile] = useState<ParentProfile | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [ready, setReady] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loadedFromDb, setLoadedFromDb] = useState(false);
+  const [savedNotice, setSavedNotice] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = loadParentProfile();
-    if (!saved) {
-      router.replace("/profile");
+    if (searchParams.get("saved") === "1") {
+      setSavedNotice(true);
+      window.history.replaceState(null, "", "/chat");
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (sessionStatus === "loading") {
       return;
     }
 
-    setProfile(saved);
-    setMessages([]);
-    setReady(true);
-  }, [router]);
+    async function init() {
+      const loggedIn = Boolean(session?.user?.lineUserId);
+      setIsLoggedIn(loggedIn);
+
+      if (loggedIn) {
+        try {
+          const response = await fetch("/api/me");
+          if (response.ok) {
+            const data = (await response.json()) as {
+              profile: ParentProfile | null;
+              messages: StoredMessage[];
+            };
+
+            if (data.profile) {
+              setProfile(data.profile);
+              setMessages(data.messages.map(toMessage));
+              setLoadedFromDb(true);
+              setReady(true);
+              return;
+            }
+          }
+        } catch {
+          // ゲスト用 localStorage にフォールバック
+        }
+      }
+
+      setLoadedFromDb(false);
+
+      const saved = loadParentProfile();
+      if (!saved) {
+        router.replace("/profile");
+        return;
+      }
+
+      setProfile(saved);
+      setMessages(loadConversation().map(toMessage));
+      setReady(true);
+    }
+
+    init();
+  }, [router, session, sessionStatus]);
+
+  useEffect(() => {
+    if (!ready || isLoggedIn) return;
+    saveConversation(toStored(messages));
+  }, [messages, ready, isLoggedIn]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const text = input.trim();
     if (!text || !profile || sending) return;
 
+    const createdAt = new Date().toISOString();
     const userMessage: Message = {
-      id: `user-${Date.now()}`,
+      id: `user-${createdAt}`,
       role: "user",
       text,
+      createdAt,
     };
 
     const nextMessages = [...messages, userMessage];
@@ -77,16 +173,26 @@ export default function ChatScreen() {
         throw new Error("返答を取得できませんでした。");
       }
 
-      const reply = data.message;
+      const replyCreatedAt = new Date().toISOString();
+      const assistantMessage: Message = {
+        id: `assistant-${replyCreatedAt}`,
+        role: "assistant",
+        text: data.message,
+        createdAt: replyCreatedAt,
+      };
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `assistant-${Date.now()}`,
-          role: "assistant",
-          text: reply,
-        },
-      ]);
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      if (isLoggedIn) {
+        await persistConversationPair(
+          { role: "user", content: text, createdAt },
+          {
+            role: "assistant",
+            content: data.message,
+            createdAt: replyCreatedAt,
+          }
+        );
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "返答を取得できませんでした。"
@@ -95,6 +201,8 @@ export default function ChatScreen() {
       setSending(false);
     }
   }
+
+  const showWelcomeBack = isLoggedIn && loadedFromDb && !savedNotice;
 
   if (!ready || !profile) {
     return (
@@ -106,6 +214,20 @@ export default function ChatScreen() {
 
   return (
     <div className="gojikka-chat">
+      {savedNotice && (
+        <p className="mb-8 text-[0.875rem] leading-[1.8] gojikka-muted">
+          会話を保存しました。
+        </p>
+      )}
+
+      {showWelcomeBack && (
+        <p className="mb-8 text-[0.9375rem] leading-[2] gojikka-muted">
+          おかえりなさい。
+          <br />
+          前回の続きから、話を再開できます。
+        </p>
+      )}
+
       <div className="gojikka-chat-messages">
         {messages.map((message) => (
           <div
@@ -148,6 +270,7 @@ export default function ChatScreen() {
               {error}
             </p>
           )}
+          <SaveConversationButton disabled={sending} />
           <button type="submit" className="gojikka-btn" disabled={sending}>
             {sending ? "送信中…" : "送信"}
           </button>

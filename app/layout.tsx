@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Serif_JP } from "next/font/google";
+import AuthSessionProvider from "@/app/components/AuthSessionProvider";
 import "./globals.css";
 
 const notoSerifJP = Noto_Serif_JP({
@@ -54,7 +55,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${notoSerifJP.variable} font-serif antialiased`}>
-        {children}
+        <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>
   );
