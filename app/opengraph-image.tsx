@@ -50,7 +50,7 @@ export default function OpenGraphImage() {
             maxWidth: 900,
           }}
         >
-          親のことを理解した状態で相談できるAI
+          そっと話を聞く相談相手
         </div>
       </div>
     ),

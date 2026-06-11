@@ -16,7 +16,7 @@ const metadataBase = new URL(
 
 const siteTitle = "GOJIKKA｜実家に帰りたいのに、帰れないあなたへ";
 const siteDescription =
-  "親のことを理解した状態で相談できるAI。遠くに離れて暮らす40〜60代のための、感情の通訳。";
+  "あなたが教えてくれた「親のこと」を覚えながら、そっと話を聞く相談相手。責めない。せかさない。正解を押し付けない。";
 
 export const metadata: Metadata = {
   metadataBase,
